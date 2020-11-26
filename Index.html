@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('loader_css').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('timeline_css').getContent(); ?>
+<script>
+var emailFromGet = <?= emailFromGet ?>;
+</script>
+
+</head>
+<body id=mybody>
+<div class='container' id=loader>
+	<p>Идёт загрузка...</p>
+	<span class="one"></span>
+	<span class="two"></span>
+	<span class="three"></span>
+	<span class="four"></span>
+</div>
+
+<div class='container' id=error hidden>
+	<h3>Произошла ошибка на сервере</h3>
+	<p>Сфотографируйте эту страничку и пришлите администратору! СС или ИМ</p>
+	<code id=errlog></code>
+</div>
+
+<div class='container' id=wrongAcc hidden>
+	<h3>Вы почти у цели!</h3>
+	<p>Зайдите на этот сайт под учётной записью ...@1553.ru</p>
+	<div type="button" class="btn btn-primary btn-lg btn-block" id=relogin target=_top>Войти под учёткой 1553</div>
+</div>
+
+<div class="container" id=main hidden>
+	<div class="row">
+		<h1 class=olymp_fio>Привет!</h1>
+	</div>
+
+
+	<ul class='nav nav-tabs row' id='menu' role='tablist'>
+		<li class='nav-item'>
+			<a data-toggle="tab" role="tab" class='nav-link active' href='#instr'  id='instr_tab'  aria-controls='instr' aria-selected='true'>
+				<span class='olymp_name'>Предстоящая олимпиада</span> - памятка участника
+			</a>
+		</li>
+		<li class='nav-item'>
+			<a data-toggle="tab" role="tab" class='nav-link' href='#calendar'  id="calendar_tab"  aria-controls='calendar' aria-selected='false'>
+				Календарь олимпиад
+			</a>
+		</li>
+		<li class='nav-item'>
+			<a data-toggle="tab" role="tab" class='nav-link'  href='#teams'  id="teams_tab"  aria-controls='teams' aria-selected='false'>
+				Teams
+			</a>
+		</li>
+	</ul>
+
+
+	<div class="row tab-content" id="content" >
+		 <div role='tabpanel' class='tab-pane show active' id="instr" aria-labelledby='instr_tab'>
+			<h3>Участие в олимпиаде</h3>
+			<ol>
+				<li><b class=olymp_date>[Загрузка...]</b> в <b class=start_time_20>[Загрузка...]</b> <a href='' class=olymp_conf target=_blank>зайдите в конференцию</a> и включите камеру.
+				<li>В <b class=start_time_10>[Загрузка...]</b> <a href="https://online.olimpiada.ru/" target=_blank>зайдите на сайт олимпиады</a>.
+				<li>Введите код участника: <b class=olymp_code>[Загрузка...]</b>
+				<li>Введите ваше ФИО и ВОШ-логин: <b class=olymp_login>[Загрузка...]</b>
+				<li>В <b class=start_time>[Загрузка...]</b> нажмите «Начать»
+				<li>Обязательно сохраняйте каждый ответ к задаче. Кнопка «Сохранить» находится в самом низу страницы справа. На проверку будут переданы только сохраненные ответы.
+				<li>Ровно в <b class=end_time>[Загрузка...]</b> олимпиада закончится.
+			</ol>
+
+			<h3>Что потом</h3>
+			<ol>
+				<li>Когда тур закончится, сохраненные участниками ответы будут автоматически приняты и отправлены на проверку.
+				<li>Свои баллы вы сможете узнать по своему ключу или логину и паролю. 
+				<li>Дата публикации результатов будет размещена <a href="https://vos.olimpiada.ru/2020/okrug" target=_blank>на странице</a> на 4-5 день после тура. 
+				<li>Ознакомьтесь с инструкцией о порядке просмотра работы и взаимодействии с жюри. 
+				<li>Вся информация есть на сайте олимпиады: <a href="https://vos.olimpiada.ru/2020/okrug" target=_blank>https://vos.olimpiada.ru/2020/okrug</a>
+			</ol>
+		</div>
+		<div role='tabpanel' class='tab-pane col-md-12' id="calendar" aria-labelledby='calendar_tab'>
+
+		  <ul class="timeline" id=calendarTimeline>
+          </ul>
+
+		</div>
+		<div role='tabpanel' class='tab-pane' id="teams" aria-labelledby='teams_tab'>
+			Тут можно будет узнать логин и пароль от Тимса и много-много другого...
+		</div>
+	</div>  
+	
+	
+	
+ </div>
+</body>
+
+<?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?> 
+</html>
