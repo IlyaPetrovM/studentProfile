@@ -48,7 +48,7 @@ function getFirstInfoByEmail(sh, titles, email){
 }
 
 function getTeamsInfo(email){
-    var sh = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1UAEi3OsgwtWncXIOsGvCpNs1O8zFSiE9Vz0ximD9YIA/edit')
+    var sh = SpreadsheetApp.openByUrl(TABLE_URL)
                             .getSheetByName("Teams");
     var titles = getTitelsNums(sh);
     var teamsInfo = getFirstInfoByEmail(sh, titles, email);
@@ -59,6 +59,7 @@ function getDefaultInfo(email){
     var em = email;
 
     var url = 'https://docs.google.com/spreadsheets/d/1UAEi3OsgwtWncXIOsGvCpNs1O8zFSiE9Vz0ximD9YIA/edit';
+    var url = TABLE_URL;
     var sp = SpreadsheetApp.openByUrl(url);
     var sh = sp.getSheetByName("olymp");
 
