@@ -34,19 +34,14 @@ var emailFromGet = <?= emailFromGet ?>;
 
 <div class="container" id=main hidden>
 	<div class="row">
-		<h1 class=olymp_fio>Привет!</h1>
+		<h1 class=fio>Привет!</h1>
 	</div>
 
 
 	<ul class='nav nav-tabs row' id='menu' role='tablist'>
 		<li class='nav-item'>
-			<a data-toggle="tab" role="tab" class='nav-link active' href='#instr'  id='instr_tab'  aria-controls='instr' aria-selected='true'>
-				<span class='olymp_name'>Предстоящая олимпиада</span> - памятка участника
-			</a>
-		</li>
-		<li class='nav-item'>
-			<a data-toggle="tab" role="tab" class='nav-link' href='#calendar'  id="calendar_tab"  aria-controls='calendar' aria-selected='false'>
-				Календарь олимпиад
+			<a data-toggle="tab" role="tab" class='nav-link' href='#olymp'  id='olymp_tab'  aria-controls='olymp' aria-selected='true' hidden>
+				Олимпиады
 			</a>
 		</li>
 		<li class='nav-item'>
@@ -58,8 +53,9 @@ var emailFromGet = <?= emailFromGet ?>;
 
 
 	<div class="row tab-content" id="content" >
-		 <div role='tabpanel' class='tab-pane show active' id="instr" aria-labelledby='instr_tab'>
-			<h3>Участие в олимпиаде</h3>
+		 <div role='tabpanel' class='tab-pane show' id="olymp" aria-labelledby='olymp_tab' hidden>
+             
+			<h3><span class='olymp_name'>Предстоящая олимпиада</span> - памятка участника</h3>
 			<ol>
 				<li><b class=olymp_date>[Загрузка...]</b> в <b class=start_time_20>[Загрузка...]</b> <a href='' class=olymp_conf target=_blank>зайдите в конференцию</a> и включите камеру.
 				<li>В <b class=start_time_10>[Загрузка...]</b> <a href="https://online.olimpiada.ru/" target=_blank>зайдите на сайт олимпиады</a>.
@@ -78,15 +74,25 @@ var emailFromGet = <?= emailFromGet ?>;
 				<li>Ознакомьтесь с инструкцией о порядке просмотра работы и взаимодействии с жюри. 
 				<li>Вся информация есть на сайте олимпиады: <a href="https://vos.olimpiada.ru/2020/okrug" target=_blank>https://vos.olimpiada.ru/2020/okrug</a>
 			</ol>
-		</div>
-		<div role='tabpanel' class='tab-pane col-md-12' id="calendar" aria-labelledby='calendar_tab'>
-
-		  <ul class="timeline" id=calendarTimeline>
-          </ul>
-
+             
+             <h3>Календарь олимпиад</h3>
+             <ul class="timeline" id=calendarTimeline></ul>
 		</div>
 		<div role='tabpanel' class='tab-pane' id="teams" aria-labelledby='teams_tab'>
-			Тут можно будет узнать логин и пароль от Тимса и много-много другого...
+            <table>
+                <tr>
+                    <td class='fio_label'></td><td class='fio'></td>
+                </tr>
+                <tr>
+                    <td class='teams_class_label'></td><td class='teams_class'></td>
+                </tr>
+                <tr>
+                    <td class='teams_login_label'></td><td class='teams_login'></td>
+                </tr>
+                <tr>
+                    <td class='teams_pass_label'></td><td class='teams_pass'></td>
+                </tr>
+            </table>
 		</div>
 	</div>  
 	
