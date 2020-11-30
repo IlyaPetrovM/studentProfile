@@ -24,6 +24,29 @@ function getTitelsNums(sh){
     return titles;
 }
 
+function getInfoByEmail(sh, titles, email){
+    var userInfo = [];
+    var r=0; //номер строки ученика
+    var shLR=sh.getLastRow();
+    var ran = sh.getRange(1,titles['email'],shLR,titles['email']);
+    var data = ran.getValues();
+    var labelRow = 2;
+
+    for (var i = 0; i<shLR; i++) {
+        if (data[i][0] == email) {
+            r=i+1; 
+            var info = {}
+            var keys = Object.keys(titles);
+            for(var j in keys){
+                info[keys[j]] = {label:""+sh.getRange(labelRow, titles[keys[j]]).getValue(), // label Row
+                                 value:""+sh.getRange(r, titles[keys[j]]).getValue()};
+            }
+            userInfo.push(info);
+        }  
+    }
+    return userInfo;
+}
+
 function getFirstInfoByEmail(sh, titles, email){
     var info = {};
     
@@ -58,8 +81,7 @@ function getTeamsInfo(email){
 function getDefaultInfo(email){
     var em = email;
 
-    var url = 'https://docs.google.com/spreadsheets/d/1UAEi3OsgwtWncXIOsGvCpNs1O8zFSiE9Vz0ximD9YIA/edit';
-    var url = TABLE_URL;
+    var url = TABLE_URL; 
     var sp = SpreadsheetApp.openByUrl(url);
     var sh = sp.getSheetByName("olymp");
 
