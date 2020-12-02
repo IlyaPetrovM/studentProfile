@@ -6,20 +6,7 @@ function daysCompare(a,b){
 	if ((a.getFullYear()*10000 + a.getMonth()*100 + a.getDate()) - (b.getFullYear()*10000 + b.getMonth()*100 + b.getDate()) < 0) return -1;
 	return 0;
 }
-function test_daysCompare(){
-  console.log(daysCompare(new Date(),new Date()) === 0 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2011, 0, 1, 0, 0, 0, 0),new Date(2011, 0, 1, 0, 0, 0, 0)) === 0 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2011, 10, 1, 0, 0, 0, 0),new Date(2011, 5, 1, 0, 0, 0, 0)) === 1 ? 'PASS': 'FAILED');
-  
-  console.log(daysCompare(new Date(2011, 5, 1, 0, 0, 0, 0),new Date(2011, 10, 1, 0, 0, 0, 0)) === -1 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2015, 5, 1, 0, 0, 0, 0),new Date(2011, 5, 1, 0, 0, 0, 0)) === 1 ? 'PASS': 'FAILED');
-  
-  console.log(daysCompare(new Date(2011, 5, 1, 0, 0, 0, 0),new Date(2015, 5, 1, 0, 0, 0, 0)) === -1 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2011, 5, 25, 0, 0, 0, 0),new Date(2011, 5, 1, 0, 0, 0, 0)) === 1 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2011, 5, 1, 0, 0, 0, 0),new Date(2011, 5, 25, 0, 0, 0, 0)) === -1 ? 'PASS': 'FAILED');
-  console.log(daysCompare(new Date(2020, 10, 1, 0, 0, 0, 0),new Date(2011, 5, 25, 0, 0, 0, 0)) === 1 ? 'PASS': 'FAILED');
-}
-//test_daysCompare();
+
 
 function formatDate(date) {
   return new Date(date).toLocaleString('ru', {
@@ -36,6 +23,7 @@ function formatTime(t) {
   });
 }
 
+/*
 function setUpOlymp(olymps) {
     olymps.sort(function(a,b){
         var _a = new Date(a.date);
@@ -124,6 +112,7 @@ function onTeamsRecieved(teamsInfo){
     $('.teams_class').html(teamsInfo.class.value);
     $('.teams_pass').html(teamsInfo.pass.value);
 }
+*/
 
     
 function relogin()
@@ -145,8 +134,8 @@ $( document ).ready(function (){
         $('#wrongAcc').attr('hidden', false);
         return;
     }
-    google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
-    google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
+//    google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
+//    google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
 });
 
 
