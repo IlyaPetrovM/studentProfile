@@ -114,7 +114,10 @@ function onTeamsRecieved(teamsInfo){
 }
 */
 
-    
+/**
+* @brief Функция заставляет выйти из гугл-аккаунта и войти нормально
+* @return Ничего не возвращает
+*/
 function relogin()
 {  
     var newWindow = window.open('https://mail.google.com/mail/?logout&hl=fr','Disconnect from Google','width=500,height=400,menubar=no,status=no,location=no,toolbar=no,scrollbars=no,top=200,left=200');
@@ -127,6 +130,11 @@ function relogin()
 }
 $( "#relogin" ).click(relogin);
 
+
+/**
+ * @brief Главная функция, которая запускается, когда страничка загрузилась
+ * @return ничего
+ */
 $( document ).ready(function (){
     console.log('client Email: ',emailFromGet);
     if(emailFromGet.split("@")[1]!='1553.ru'){
@@ -137,19 +145,24 @@ $( document ).ready(function (){
     google.script.run.withFailureHandler(function (e){
         console.log(e.message, e);
     }).withSuccessHandler(onSheetsRecieved).getSheets(emailFromGet);
-//    google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
-//    google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
+
 });
+
+/**
+ * @brief Успешное получение списка листов
+ * @param [in|out] String[] sheets Названия листов
+ * @return ничего
+ */
 function onSheetsRecieved(sheets){
     $('#loader').attr('hidden', true);
 	$('#main').attr('hidden', false);
 
-//    for(var i in sheets){
+    for(var i in sheets){
         var data = google.script.run
                     .withFailureHandler(onGetDataFailed)
                     .withSuccessHandler(onGetDataRecieved)
-                    .getData('olymp', emailFromGet, 'email');
-//    }
+                    .getData(sheets[i], emailFromGet, 'email');
+    }
 
 }
 function onGetDataFailed(e){

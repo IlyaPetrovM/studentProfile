@@ -42,19 +42,18 @@ function getData(sheetName, id, id_label) {
     var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
     var fields = getFieldsNums(fieldsArr);
     fieldsArr = Object.keys(fields);
-    var colWithIds = sh.getRange(1,  1, sh.getLastRow()).getValues(); // getRange(row, column, numRows, numColumns)
+    var colWithIds = sh.getRange(1, 1, sh.getLastRow()).getValues(); // getRange(row, column, numRows, numColumns)
     var rowNums = getRowNums(colWithIds, id);
     var d = [];
-//    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < rowNums.length; i++) {
         var obj = {};
-//        var values = sh.getRange(10, 1, 1, fieldsArr.length-1).getValues();
-//        Logger.log(values);
-//        var values = sh.getRange(10, 1, 1, fieldsArr.length-1).getValues()[0];
-//        Logger.log(values);
-//        fieldsArr.forEach((key, col) => obj[key] = new String(values[col]));
-//        d.push(values);
-//    }
-    return sh.getRange(10, 1, 1, fieldsArr.length-1).getValues()[0];  //*< \TODO: Почему-то обрабатывает только первые три строчки - остальные возвращает null. Возможно связано со временем выполнения
+        fieldsArr.forEach((key, col) => obj[key] = "" + sh.getRange(rowNums[i], col + 1).getValue());
+        d.push(obj);
+    }
+    return {
+        "data": d,
+        "sheetName": sheetName
+    };
 }
 
 /**
@@ -85,20 +84,4 @@ function getRowNums(column, id) {
         }
     }
     return nums;
-}
-
-function selectRows(data, nums){
-    var res = [];
-
-    var keys = data[0];
-    for(var r in data){
-        var values = data[r];
-        if(values[id_col] == id){
-            var row = {};
-//            keys.forEach((key, i) => row[key] = values[i]);
-            res.push(values);
-        }
-    }
-    Logger.log(data);
-    return data[5];
 }
