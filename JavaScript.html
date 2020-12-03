@@ -128,15 +128,37 @@ function relogin()
 $( "#relogin" ).click(relogin);
 
 $( document ).ready(function (){
-    console.log('got Email: ',emailFromGet);
+    console.log('client Email: ',emailFromGet);
     if(emailFromGet.split("@")[1]!='1553.ru'){
         $('#loader').attr('hidden', true);
         $('#wrongAcc').attr('hidden', false);
         return;
     }
+    google.script.run.withFailureHandler(function (e){
+        console.log(e.message, e);
+    }).withSuccessHandler(onSheetsRecieved).getSheets(emailFromGet);
 //    google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
 //    google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
 });
+function onSheetsRecieved(sheets){
+    $('#loader').attr('hidden', true);
+	$('#main').attr('hidden', false);
+
+//    for(var i in sheets){
+        var data = google.script.run
+                    .withFailureHandler(onGetDataFailed)
+                    .withSuccessHandler(onGetDataRecieved)
+                    .getData('olymp', emailFromGet, 'email');
+//    }
+
+}
+function onGetDataFailed(e){
+    console.log("error!", e.message, e);
+}
+function onGetDataRecieved(msg){
+    console.log(msg);
+}
+
 
 
 </script>
