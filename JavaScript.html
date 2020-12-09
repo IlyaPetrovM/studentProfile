@@ -1,201 +1,206 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
-
-function daysCompare(a,b){
-	if ((a.getFullYear()*10000 + a.getMonth()*100 + a.getDate()) - (b.getFullYear()*10000 + b.getMonth()*100 + b.getDate()) > 0) return 1;
-	if ((a.getFullYear()*10000 + a.getMonth()*100 + a.getDate()) - (b.getFullYear()*10000 + b.getMonth()*100 + b.getDate()) < 0) return -1;
-	return 0;
-}
-
-
-function formatDate(date) {
-  return new Date(date).toLocaleString('ru', {
-    day:   '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
-}
-
-function formatTime(t) {
-  return new Date(t).toLocaleString('ru', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-/*
-function setUpOlymp(olymps) {
-    olymps.sort(function(a,b){
-        var _a = new Date(a.date);
-        var _b = new Date(b.date);
-        if(new Date(a.date) < new Date(b.date)) return -1;
-        if(new Date(a.date) > new Date(b.date)) return 1;
+    function daysCompare(a, b) {
+        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) > 0) return 1;
+        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) < 0) return -1;
         return 0;
-    });
-
-    for(var i in olymps){
-        var x = new Date(olymps[i].date);
-        var t = new Date();
-        let div = '<li class="event '+(daysCompare(x,t) < 0 ? 'was' : '') +'" \
-                    data-date="'+formatDate(olymps[i].date) +' в '+formatTime(olymps[i].start_time)+'">\
-                    <h3>'+olymps[i].name+'</h3> \
-                    <p>'+'</p> \
-                    </li>';
-        calendarTimeline.insertAdjacentHTML('beforeend', div);
     }
 
-    var find = 0;
-    for(var i in olymps){ // поиск в сортированом списке
-        var _d = new Date(olymps[i].date);
-        var t = new Date();
-        if(_d.getFullYear()>=t.getFullYear() && _d.getMonth()>=t.getMonth() && _d.getDate()>=t.getDate()){
-            find = i;
-            break;
+
+    function formatDate(date) {
+        return new Date(date).toLocaleString('ru', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    function formatTime(t) {
+        return new Date(t).toLocaleString('ru', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    /*
+    function setUpOlymp(olymps) {
+        olymps.sort(function(a,b){
+            var _a = new Date(a.date);
+            var _b = new Date(b.date);
+            if(new Date(a.date) < new Date(b.date)) return -1;
+            if(new Date(a.date) > new Date(b.date)) return 1;
+            return 0;
+        });
+
+        for(var i in olymps){
+            var x = new Date(olymps[i].date);
+            var t = new Date();
+            let div = '<li class="event '+(daysCompare(x,t) < 0 ? 'was' : '') +'" \
+                        data-date="'+formatDate(olymps[i].date) +' в '+formatTime(olymps[i].start_time)+'">\
+                        <h3>'+olymps[i].name+'</h3> \
+                        <p>'+'</p> \
+                        </li>';
+            calendarTimeline.insertAdjacentHTML('beforeend', div);
+        }
+
+        var find = 0;
+        for(var i in olymps){ // поиск в сортированом списке
+            var _d = new Date(olymps[i].date);
+            var t = new Date();
+            if(_d.getFullYear()>=t.getFullYear() && _d.getMonth()>=t.getMonth() && _d.getDate()>=t.getDate()){
+                find = i;
+                break;
+            }
+        }
+        var info = olymps[find];
+
+        $('.fio').html(info.last_name + " " + info.first_name + " " + info.middle_name);
+        $('.olymp_name').html(info.name); // Эта команда применяет функцию html ко всем элементам с атрибутом class = olymp_login
+        $('.olymp_date').html(formatDate(info.date));
+        $('.start_time').html(formatTime(info.start_time));
+        var st = new Date(info.start_time);
+
+        $('.start_time_10').html(formatTime(new Date(st).setMinutes(st.getMinutes()-10)));
+        $('.start_time_20').html(formatTime(new Date(st).setMinutes(st.getMinutes()-20)));
+        $('.end_time').html(formatTime(info.end_time));
+        $('.olymp_code').html(info.code);
+        $('.olymp_login').html(info.login);
+        $('.olymp_pass').html(info.pass);
+        if(new String(info.conf).includes('http'))
+            $('.olymp_conf').attr('href', info.conf);
+        else
+            $('.olymp_conf').attr('href', 'http://'+info.conf);
+    }
+
+    function onInfoRecieved(olymps){
+    	if(olymps.length>0){
+            setUpOlymp(olymps);
+            $('#olymp_tab').attr('hidden',false);
+            $('#olymp').attr('hidden',false);
+            $('#olymp_tab').addClass('active');
+            $('#olymp').addClass('active');
+    	}else{
+            $('#teams_tab').addClass('active');
+            $('#teams').addClass('active');
+        }
+
+    	$('#loader').attr('hidden', true);
+    	$('#main').attr('hidden', false);
+    }
+
+    function onInfoFailed(e){
+        console.log(e);
+        $('#loader').attr('hidden', true);
+        $('#error').attr('hidden', false);
+        $('#errlog').html(e.message + e.stack);
+    };
+
+    function onTeamsFailed(e){
+        console.log(e);
+        alert('Данные о Teams не удалось загрузить :( Сожалеем об этом.)');
+    }
+
+    function onTeamsRecieved(teamsInfo){
+        $('.fio_label').html(teamsInfo.last_name.label + ' '+ teamsInfo.first_name.label);
+        $('.teams_login_label').html(teamsInfo.login.label);
+        $('.teams_class_label').html(teamsInfo.class.label);
+        $('.teams_pass_label').html(teamsInfo.pass.label);
+
+        $('.fio').html(teamsInfo.last_name.value + ' '+ teamsInfo.first_name.value);
+        $('.teams_login').html(teamsInfo.login.value);
+        $('.teams_class').html(teamsInfo.class.value);
+        $('.teams_pass').html(teamsInfo.pass.value);
+    }
+    */
+
+    /**
+     * @brief Функция заставляет выйти из гугл-аккаунта и войти нормально
+     * @return Ничего не возвращает
+     */
+    function relogin() {
+        var newWindow = window.open('https://mail.google.com/mail/?logout&hl=fr', 'Disconnect from Google', 'width=500,height=400,menubar=no,status=no,location=no,toolbar=no,scrollbars=no,top=200,left=200');
+        setTimeout(function() {
+            if (newWindow) newWindow.close();
+            var url = "https://accounts.google.com/ServiceLogin/signinchooser?passive=1209600&continue=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&followup=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
+            window.open(url, '_top')
+        }, 1000);
+    }
+    $("#relogin").click(relogin);
+
+
+    /**
+     * @brief Главная функция, которая запускается, когда страничка загрузилась
+     * @return ничего
+     */
+    $(document).ready(function() {
+        console.log('client Email: ', emailFromGet);
+        if (emailFromGet.split("@")[1] != '1553.ru') {
+            $('#loader').attr('hidden', true);
+            $('#wrongAcc').attr('hidden', false);
+            return;
+        }
+        google.script.run.withFailureHandler(function(e) {
+            console.log(e.message, e);
+        }).withSuccessHandler(onSheetsRecieved).getSheets(emailFromGet);
+
+    });
+
+    /**
+     * @brief Успешное получение списка листов
+     * @param [in|out] String[] sheets Названия листов
+     * @return ничего
+     */
+    function onSheetsRecieved(sheets) {
+        $('#loader').attr('hidden', true);
+        $('#main').attr('hidden', false);
+
+        for (var i in sheets) {
+            var data = google.script.run
+                .withFailureHandler(onGetDataFailed)
+                .withSuccessHandler(onGetDataRecieved)
+                .getData(sheets[i], emailFromGet, 'email');
+        }
+
+    }
+
+    function onGetDataFailed(e) {
+        console.log("error!", e.message, e);
+    }
+    var isFirstTab = true;
+
+    function onGetDataRecieved(msg) {
+        console.log(msg);
+
+        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
+        var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab'></div>";
+
+        $('#menu').append(navItem);
+        $('#content').append(tabPanel);
+        isFirstTab = false;
+
+        switch (msg.sheetLayout) {
+            case 'table':
+                drawTable('#'+msg.sheetId, msg.data);
+                break;
+            case 'cards':
+                console.log('TODO drawCards');
+                break;
         }
     }
-    var info = olymps[find];
 
-    $('.fio').html(info.last_name + " " + info.first_name + " " + info.middle_name);
-    $('.olymp_name').html(info.name); // Эта команда применяет функцию html ко всем элементам с атрибутом class = olymp_login
-    $('.olymp_date').html(formatDate(info.date));
-    $('.start_time').html(formatTime(info.start_time));
-    var st = new Date(info.start_time);
-
-    $('.start_time_10').html(formatTime(new Date(st).setMinutes(st.getMinutes()-10)));
-    $('.start_time_20').html(formatTime(new Date(st).setMinutes(st.getMinutes()-20)));
-    $('.end_time').html(formatTime(info.end_time));
-    $('.olymp_code').html(info.code);
-    $('.olymp_login').html(info.login); 
-    $('.olymp_pass').html(info.pass);
-    if(new String(info.conf).includes('http'))
-        $('.olymp_conf').attr('href', info.conf);
-    else 
-        $('.olymp_conf').attr('href', 'http://'+info.conf);
-}
-
-function onInfoRecieved(olymps){
-	if(olymps.length>0){
-        setUpOlymp(olymps);
-        $('#olymp_tab').attr('hidden',false);
-        $('#olymp').attr('hidden',false);
-        $('#olymp_tab').addClass('active');
-        $('#olymp').addClass('active');
-	}else{
-        $('#teams_tab').addClass('active');
-        $('#teams').addClass('active');
+    function drawTable(id, data) {
+        var table = new Tabulator(id, {
+            //        height: 300,
+            data: data,
+            autoColumns:true,
+            selectable: true,
+            layout:"fitDataFill",
+            responsiveLayout:"collapse",
+            rowSelectionChanged: function(data, rows) {
+                console.log(data, rows);
+            },
+        });
     }
-    
-	$('#loader').attr('hidden', true);
-	$('#main').attr('hidden', false);   
-}
-
-function onInfoFailed(e){
-    console.log(e);
-    $('#loader').attr('hidden', true);
-    $('#error').attr('hidden', false);
-    $('#errlog').html(e.message + e.stack);
-};    
-
-function onTeamsFailed(e){
-    console.log(e);
-    alert('Данные о Teams не удалось загрузить :( Сожалеем об этом.)');
-}
-    
-function onTeamsRecieved(teamsInfo){
-    $('.fio_label').html(teamsInfo.last_name.label + ' '+ teamsInfo.first_name.label);
-    $('.teams_login_label').html(teamsInfo.login.label);
-    $('.teams_class_label').html(teamsInfo.class.label);
-    $('.teams_pass_label').html(teamsInfo.pass.label);
-    
-    $('.fio').html(teamsInfo.last_name.value + ' '+ teamsInfo.first_name.value);
-    $('.teams_login').html(teamsInfo.login.value);
-    $('.teams_class').html(teamsInfo.class.value);
-    $('.teams_pass').html(teamsInfo.pass.value);
-}
-*/
-
-/**
-* @brief Функция заставляет выйти из гугл-аккаунта и войти нормально
-* @return Ничего не возвращает
-*/
-function relogin()
-{  
-    var newWindow = window.open('https://mail.google.com/mail/?logout&hl=fr','Disconnect from Google','width=500,height=400,menubar=no,status=no,location=no,toolbar=no,scrollbars=no,top=200,left=200');
-    setTimeout(function()
-    {
-        if (newWindow) newWindow.close();
-        var url = "https://accounts.google.com/ServiceLogin/signinchooser?passive=1209600&continue=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&followup=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
-        window.open(url, '_top')
-    },1000);   
-}
-$( "#relogin" ).click(relogin);
-
-
-/**
- * @brief Главная функция, которая запускается, когда страничка загрузилась
- * @return ничего
- */
-$( document ).ready(function (){
-    console.log('client Email: ',emailFromGet);
-    if(emailFromGet.split("@")[1]!='1553.ru'){
-        $('#loader').attr('hidden', true);
-        $('#wrongAcc').attr('hidden', false);
-        return;
-    }
-    google.script.run.withFailureHandler(function (e){
-        console.log(e.message, e);
-    }).withSuccessHandler(onSheetsRecieved).getSheets(emailFromGet);
-
-});
-
-/**
- * @brief Успешное получение списка листов
- * @param [in|out] String[] sheets Названия листов
- * @return ничего
- */
-function onSheetsRecieved(sheets){
-    $('#loader').attr('hidden', true);
-	$('#main').attr('hidden', false);
-
-    for(var i in sheets){
-        var data = google.script.run
-                    .withFailureHandler(onGetDataFailed)
-                    .withSuccessHandler(onGetDataRecieved)
-                    .getData(sheets[i], emailFromGet, 'email');
-    }
-
-}
-function onGetDataFailed(e){
-    console.log("error!", e.message, e);
-}
-function onGetDataRecieved(msg){
-    console.log(msg);
-    switch (msg.sheetName){
-        case 'Teams':
-            drawTable('#Teams_table',msg.data);
-            break;
-    }
-}
-function drawTable(id, data){
-    var table = new Tabulator(id, {
-//        height: 300,
-        data: data,
-        columns: [
-            {title:'class', field:'class'},
-            {title:'email', field:'email'},
-            {title:'first_name', field:'first_name'},
-            {title:'last_name', field:'last_name'},
-            {title:'login', field:'login'},
-            {title:'pass', field:'pass'},
-        ],
-        selectable:true,
-        rowSelectionChanged:function(data, rows){
-            console.log(data, rows);
-        },
-    });
-}
-
-
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

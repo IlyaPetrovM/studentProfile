@@ -52,7 +52,9 @@ function getData(sheetName, id, id_label) {
     }
     return {
         "data": d,
-        "sheetName": sheetName
+        "sheetName": sheetName,
+        "sheetId": new String(sheetName).replace(/ /gi, '_'),
+        "sheetLayout": 'table'
     };
 }
 
