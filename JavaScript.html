@@ -1,6 +1,8 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 
+
+
 function daysCompare(a,b){
 	if ((a.getFullYear()*10000 + a.getMonth()*100 + a.getDate()) - (b.getFullYear()*10000 + b.getMonth()*100 + b.getDate()) > 0) return 1;
 	if ((a.getFullYear()*10000 + a.getMonth()*100 + a.getDate()) - (b.getFullYear()*10000 + b.getMonth()*100 + b.getDate()) < 0) return -1;
@@ -145,8 +147,9 @@ $( document ).ready(function (){
         $('#wrongAcc').attr('hidden', false);
         return;
     }
-    google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
-    google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
+
+        google.script.run.withFailureHandler(onInfoFailed).withSuccessHandler(onInfoRecieved).getDefaultInfo(emailFromGet);
+        google.script.run.withFailureHandler(onTeamsFailed).withSuccessHandler(onTeamsRecieved).getTeamsInfo(emailFromGet);
 });
 
 
