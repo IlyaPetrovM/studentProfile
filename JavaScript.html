@@ -172,23 +172,28 @@ function onGetDataRecieved(msg){
     console.log(msg);
     switch (msg.sheetName){
         case 'Teams':
-             var table = new Tabulator('#datatable', {
-                height: 300,
-                data: msg.data,
-                columns: [
-                    {title:'class', field:'class'},
-                    {title:'email', field:'email'},
-                    {title:'first_name', field:'first_name'},
-                    {title:'last_name', field:'last_name'},
-                    {title:'login', field:'login'},
-                    {title:'pass', field:'pass'},
-                ],
-
-            });
+            drawTable('#Teams_table',msg.data);
             break;
     }
 }
-
+function drawTable(id, data){
+    var table = new Tabulator(id, {
+//        height: 300,
+        data: data,
+        columns: [
+            {title:'class', field:'class'},
+            {title:'email', field:'email'},
+            {title:'first_name', field:'first_name'},
+            {title:'last_name', field:'last_name'},
+            {title:'login', field:'login'},
+            {title:'pass', field:'pass'},
+        ],
+        selectable:true,
+        rowSelectionChanged:function(data, rows){
+            console.log(data, rows);
+        },
+    });
+}
 
 
 </script>
