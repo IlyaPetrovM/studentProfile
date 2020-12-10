@@ -113,94 +113,124 @@
     }
     */
 
-    /**
-     * @brief Функция заставляет выйти из гугл-аккаунта и войти нормально
-     * @return Ничего не возвращает
-     */
-    function relogin() {
-        var newWindow = window.open('https://mail.google.com/mail/?logout&hl=fr', 'Disconnect from Google', 'width=500,height=400,menubar=no,status=no,location=no,toolbar=no,scrollbars=no,top=200,left=200');
-        setTimeout(function() {
-            if (newWindow) newWindow.close();
-            var url = "https://accounts.google.com/ServiceLogin/signinchooser?passive=1209600&continue=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&followup=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
-            window.open(url, '_top')
-        }, 1000);
-    }
-    $("#relogin").click(relogin);
 
 
-    /**
-     * @brief Главная функция, которая запускается, когда страничка загрузилась
-     * @return ничего
-     */
-    $(document).ready(function() {
-        console.log('client Email: ', emailFromGet);
-        if (emailFromGet.split("@")[1] != '1553.ru') {
-            $('#loader').attr('hidden', true);
-            $('#wrongAcc').attr('hidden', false);
-            return;
-        }
-        google.script.run.withFailureHandler(function(e) {
-            console.log(e.message, e);
-        }).withSuccessHandler(onSheetsRecieved).getSheets(emailFromGet);
-
-    });
-
-    /**
-     * @brief Успешное получение списка листов
-     * @param [in|out] String[] sheets Названия листов
-     * @return ничего
-     */
-    function onSheetsRecieved(sheets) {
+/**
+ * @brief Главная функция, которая запускается, когда страничка загрузилась
+ * @return ничего
+ */
+$(document).ready(function() {
+    console.log('client Email: ', emailFromGet);
+    if (emailFromGet.split("@")[1] != '1553.ru') {
         $('#loader').attr('hidden', true);
-        $('#main').attr('hidden', false);
-
-        for (var i in sheets) {
-            var data = google.script.run
-                .withFailureHandler(onGetDataFailed)
-                .withSuccessHandler(onGetDataRecieved)
-                .getData(sheets[i], emailFromGet, 'email');
-        }
-
+        $('#wrongAcc').attr('hidden', false);
+        return;
     }
+    google.script.run
+        .withFailureHandler(function(e) {
+            console.log(e.message, e);
+        })
+        .withSuccessHandler(onSheetsRecieved)
+        .getSheets(emailFromGet);
 
-    function onGetDataFailed(e) {
-        console.log("error!", e.message, e);
+});
+
+$("#relogin").click(relogin);
+
+/**
+ * @brief Заставляет выйти из гугл-аккаунта и войти нормально
+ * @return Ничего не возвращает
+ */
+function relogin() {
+    var newWindow = window.open(
+        'https://mail.google.com/mail/?logout&hl=fr',
+        'Disconnect from Google', 'width=500,height=400,menubar=no,status=no,location=no,toolbar=no,scrollbars=no,top=200,left=200'
+    );
+    setTimeout(function() {
+        if (newWindow)
+            newWindow.close();
+        var url = "https://accounts.google.com/ServiceLogin/signinchooser?passive=1209600&continue=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&followup=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbwYVmAvO5vg13Grk_5bLtfE6ms-ZNjzQ8aaqbnAcESOcIu9DHQa%2Fexec&flowName=GlifWebSignIn&flowEntry=ServiceLogin";
+        window.open(url, '_top');
+    }, 1000);
+}
+
+/**
+ * @brief Успешное получение списка листов
+ * @param [in|out] String[] sheets Названия листов
+ * @see getSheets()
+ */
+function onSheetsRecieved(sheets) {
+    $('#loader').attr('hidden', true);
+    $('#main').attr('hidden', false);
+    console.time('1');
+    for (var i in sheets) {
+        var data = google.script.run
+            .withFailureHandler(onGetDataFailed)
+            .withSuccessHandler(onGetDataRecieved)
+            .getData(sheets[i], emailFromGet, 'email');
     }
-    var isFirstTab = true;
+}
 
-    function onGetDataRecieved(msg) {
-        console.log(msg);
+/**
+ * @brief Обработка ошибок, если загрузить лист не удалось
+ */
+function onGetDataFailed(e) {
+    console.log("error!", e.message, e);
+}
 
-        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
-        var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab'></div>";
+/**
+ * @brief Флаг отвечающий за установку вкладки по умолчанию (первая загруженная - ставится по-умолчанию)
+ */
+var isFirstTab = true;
 
-        $('#menu').append(navItem);
-        $('#content').append(tabPanel);
-        isFirstTab = false;
+/**
+ * @brief Обработка полученных данных отдельного листа
+ * @param [in] Object msg данные и метаданные отдельного листа
+ * @see  getData(sheetName, id, id_label)
+ */
+function onGetDataRecieved(msg) {
+    console.log(msg);
+    console.log(isFirstTab);
+    if(msg.data.length < 1) return;
 
-        switch (msg.sheetLayout) {
-            case 'table':
-                drawTable('#'+msg.sheetId, msg.data);
-                break;
-            case 'cards':
-                console.log('TODO drawCards');
-                break;
-        }
+    var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
+    var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab'></div>";
+
+    $('#menu').append(navItem);
+    $('#content').append(tabPanel);
+    isFirstTab = false;
+
+    switch (msg.sheetLayout) {
+        case 'table':
+            drawTable(msg.sheetId, msg.data);
+            break;
+        case 'cards':
+            console.log('TODO drawCards');
+            break;
     }
+}
 
-    function drawTable(id, data) {
-        var table = new Tabulator(id, {
-            //        height: 300,
-            data: data,
-            autoColumns:true,
-            selectable: true,
-            layout:"fitDataFill",
-            responsiveLayout:"collapse",
-            rowSelectionChanged: function(data, rows) {
-                console.log(data, rows);
-            },
-        });
-    }
+/**
+ * @brief Рисует табличку при помощи библиотеки Tabulator
+ * @param [in] String id Идентефикатор элемента, внутрь которого надо добавить табличку
+ * @param [in] String data Содержимое таблички
+ * @return Ничего
+ */
+function drawTable(id, data) {
+    var tableId = id+'_table';
+    $("#"+id).append('<div id="'+tableId+'"></div>');
+    var table = new Tabulator("#"+tableId, {
+        //        height: 300,
+        data: data,
+        autoColumns:true,
+        selectable: true,
+        layout:"fitDataFill",
+        responsiveLayout:"collapse",
+        rowSelectionChanged: function(data, rows) {
+            console.log(data, rows);
+        },
+    });
+}
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
