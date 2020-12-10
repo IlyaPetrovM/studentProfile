@@ -162,7 +162,7 @@ function relogin() {
 function onSheetsRecieved(sheets) {
     $('#loader').attr('hidden', true);
     $('#main').attr('hidden', false);
-    console.time('1');
+
     for (var i in sheets) {
         var data = google.script.run
             .withFailureHandler(onGetDataFailed)
@@ -190,14 +190,16 @@ var isFirstTab = true;
  */
 function onGetDataRecieved(msg) {
     console.log(msg);
-    console.log(isFirstTab);
+
     if(msg.data.length < 1) return;
 
     var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
-    var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab'></div>";
+    var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab' ></div>";
 
     $('#menu').append(navItem);
     $('#content').append(tabPanel);
+    if(isFirstTab)
+        $('#'+msg.sheetId+'_tab').click();
     isFirstTab = false;
 
     switch (msg.sheetLayout) {
@@ -208,6 +210,7 @@ function onGetDataRecieved(msg) {
             console.log('TODO drawCards');
             break;
     }
+
 }
 
 /**
@@ -218,13 +221,13 @@ function onGetDataRecieved(msg) {
  */
 function drawTable(id, data) {
     var tableId = id+'_table';
-    $("#"+id).append('<div id="'+tableId+'"></div>');
+    $("#"+id).append('<div class="row" id="'+tableId+'"></div>');
     var table = new Tabulator("#"+tableId, {
         //        height: 300,
         data: data,
         autoColumns:true,
         selectable: true,
-        layout:"fitDataFill",
+        layout:"fitDataTable",
         responsiveLayout:"collapse",
         rowSelectionChanged: function(data, rows) {
             console.log(data, rows);
