@@ -1,120 +1,5 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
-    function daysCompare(a, b) {
-        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) > 0) return 1;
-        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) < 0) return -1;
-        return 0;
-    }
-
-
-    function formatDate(date) {
-        return new Date(date).toLocaleString('ru', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    }
-
-    function formatTime(t) {
-        return new Date(t).toLocaleString('ru', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    /*
-    function setUpOlymp(olymps) {
-        olymps.sort(function(a,b){
-            var _a = new Date(a.date);
-            var _b = new Date(b.date);
-            if(new Date(a.date) < new Date(b.date)) return -1;
-            if(new Date(a.date) > new Date(b.date)) return 1;
-            return 0;
-        });
-
-        for(var i in olymps){
-            var x = new Date(olymps[i].date);
-            var t = new Date();
-            let div = '<li class="event '+(daysCompare(x,t) < 0 ? 'was' : '') +'" \
-                        data-date="'+formatDate(olymps[i].date) +' в '+formatTime(olymps[i].start_time)+'">\
-                        <h3>'+olymps[i].name+'</h3> \
-                        <p>'+'</p> \
-                        </li>';
-            calendarTimeline.insertAdjacentHTML('beforeend', div);
-        }
-
-        var find = 0;
-        for(var i in olymps){ // поиск в сортированом списке
-            var _d = new Date(olymps[i].date);
-            var t = new Date();
-            if(_d.getFullYear()>=t.getFullYear() && _d.getMonth()>=t.getMonth() && _d.getDate()>=t.getDate()){
-                find = i;
-                break;
-            }
-        }
-        var info = olymps[find];
-
-        $('.fio').html(info.last_name + " " + info.first_name + " " + info.middle_name);
-        $('.olymp_name').html(info.name); // Эта команда применяет функцию html ко всем элементам с атрибутом class = olymp_login
-        $('.olymp_date').html(formatDate(info.date));
-        $('.start_time').html(formatTime(info.start_time));
-        var st = new Date(info.start_time);
-
-        $('.start_time_10').html(formatTime(new Date(st).setMinutes(st.getMinutes()-10)));
-        $('.start_time_20').html(formatTime(new Date(st).setMinutes(st.getMinutes()-20)));
-        $('.end_time').html(formatTime(info.end_time));
-        $('.olymp_code').html(info.code);
-        $('.olymp_login').html(info.login);
-        $('.olymp_pass').html(info.pass);
-        if(new String(info.conf).includes('http'))
-            $('.olymp_conf').attr('href', info.conf);
-        else
-            $('.olymp_conf').attr('href', 'http://'+info.conf);
-    }
-
-    function onInfoRecieved(olymps){
-    	if(olymps.length>0){
-            setUpOlymp(olymps);
-            $('#olymp_tab').attr('hidden',false);
-            $('#olymp').attr('hidden',false);
-            $('#olymp_tab').addClass('active');
-            $('#olymp').addClass('active');
-    	}else{
-            $('#teams_tab').addClass('active');
-            $('#teams').addClass('active');
-        }
-
-    	$('#loader').attr('hidden', true);
-    	$('#main').attr('hidden', false);
-    }
-
-    function onInfoFailed(e){
-        console.log(e);
-        $('#loader').attr('hidden', true);
-        $('#error').attr('hidden', false);
-        $('#errlog').html(e.message + e.stack);
-    };
-
-    function onTeamsFailed(e){
-        console.log(e);
-        alert('Данные о Teams не удалось загрузить :( Сожалеем об этом.)');
-    }
-
-    function onTeamsRecieved(teamsInfo){
-        $('.fio_label').html(teamsInfo.last_name.label + ' '+ teamsInfo.first_name.label);
-        $('.teams_login_label').html(teamsInfo.login.label);
-        $('.teams_class_label').html(teamsInfo.class.label);
-        $('.teams_pass_label').html(teamsInfo.pass.label);
-
-        $('.fio').html(teamsInfo.last_name.value + ' '+ teamsInfo.first_name.value);
-        $('.teams_login').html(teamsInfo.login.value);
-        $('.teams_class').html(teamsInfo.class.value);
-        $('.teams_pass').html(teamsInfo.pass.value);
-    }
-    */
-
-
-
 /**
  * @brief Главная функция, которая запускается, когда страничка загрузилась
  * @return ничего
@@ -252,6 +137,42 @@ var drawer = {
         }
     };
 
+    /**
+     * @brief Сравнение дат без учёта времени
+     * @param [in] Date a Дата
+     * @param [in] Date b Дата
+     * @return 0 если даты одинаковые, 1 если больше а, -1 если больше b
+     */
+    function daysCompare(a, b) {
+        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) > 0) return 1;
+        if ((a.getFullYear() * 10000 + a.getMonth() * 100 + a.getDate()) - (b.getFullYear() * 10000 + b.getMonth() * 100 + b.getDate()) < 0) return -1;
+        return 0;
+    }
+
+    /**
+     * @brief Форматирует дату в виде красивого текста
+     * @param [in] Date date Дата
+     * @return текстовая строка с датой
+     */
+    function formatDate(date) {
+        return new Date(date).toLocaleString('ru', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    /**
+     * @brief Форматирует время в виде красивого текста
+     * @param [in] Date t время
+     * @return текстовая строка со временем
+     */
+    function formatTime(t) {
+        return new Date(t).toLocaleString('ru', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
