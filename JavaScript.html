@@ -202,38 +202,56 @@ function onGetDataRecieved(msg) {
         $('#'+msg.sheetId+'_tab').click();
     isFirstTab = false;
 
-    switch (msg.sheetLayout) {
-        case 'table':
-            drawTable(msg.sheetId, msg.data);
-            break;
-        case 'cards':
-            console.log('TODO drawCards');
-            break;
+    try{
+        drawer[msg.sheetLayout](msg.sheetId, msg.data);
+    }catch(e){
+        console.log(e);
+        drawer['table'](msg.sheetId, msg.data);
     }
 
 }
 
 /**
- * @brief Рисует табличку при помощи библиотеки Tabulator
- * @param [in] String id Идентефикатор элемента, внутрь которого надо добавить табличку
- * @param [in] String data Содержимое таблички
- * @return Ничего
+ * @brief Рисовальщик - содержит функции рисующие данные как надо на основе параметра sheetLayout
  */
-function drawTable(id, data) {
-    var tableId = id+'_table';
-    $("#"+id).append('<div class="row" id="'+tableId+'"></div>');
-    var table = new Tabulator("#"+tableId, {
-        //        height: 300,
-        data: data,
-        autoColumns:true,
-        selectable: true,
-        layout:"fitDataTable",
-        responsiveLayout:"collapse",
-        rowSelectionChanged: function(data, rows) {
-            console.log(data, rows);
+var drawer = {
+        /**
+         * @brief Рисует табличку при помощи библиотеки Tabulator
+         * @param [in] String id Идентефикатор элемента, внутрь которого надо добавить табличку
+         * @param [in] String data Содержимое таблички
+         */
+        table: function(id, data) {
+            var tableId = id+'_table';
+            $("#"+id).append('<div class="row" id="'+tableId+'"></div>');
+            var table = new Tabulator("#"+tableId, {
+                //        height: 300,
+                data: data,
+                autoColumns:true,
+                selectable: true,
+                layout:"fitDataTable",
+                responsiveLayout:"collapse",
+                rowSelectionChanged: function(data, rows) {
+                    console.log(data, rows);
+                },
+            });
         },
-    });
-}
+
+        /**
+         * @brief Сваливает всё просто в кучу - оставляет возможность форматировать из базы данных
+         * @param [in] String id Идентефикатор элемента, внутрь которого надо добавить табличку
+         * @param [in] String data Содержимое таблички
+         */
+        plainText: function(id, data){
+            var html = '';
+            for(var i in data){
+                for(j in data[i]){
+                    html += data[i][j] + ' ';
+                }
+            }
+            $('#'+id).html(html);
+        }
+    };
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

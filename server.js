@@ -54,7 +54,7 @@ function getData(sheetName, id, id_label) {
         "data": d,
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": 'table'
+        "sheetLayout": 'plainText'
     };
 }
 
