@@ -69,6 +69,7 @@ function setUpOlymp(olymps) {
     }
     var info = olymps[find];
 
+
     $('.fio').html(info.last_name + " " + info.first_name + " " + info.middle_name);
     $('.olymp_name').html(info.name); // Эта команда применяет функцию html ко всем элементам с атрибутом class = olymp_login
     $('.olymp_date').html(formatDate(info.date));
@@ -85,6 +86,14 @@ function setUpOlymp(olymps) {
         $('.olymp_conf').attr('href', info.conf);
     else 
         $('.olymp_conf').attr('href', 'http://'+info.conf);
+
+    if(info.olymp_link != ''){
+        if(new String(info.olymp_link).includes('http'))
+            $('.olymp_link').attr('href', info.olymp_link);
+        else
+            $('.olymp_link').attr('href', 'http://'+info.olymp_link);
+    }
+
 }
 
 function onInfoRecieved(olymps){
