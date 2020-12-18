@@ -1,3 +1,4 @@
+var TABLE_URL = 'https://docs.google.com/spreadsheets/d/1jIS6vzfIFmGFFBW67k1R1JmNokP8tv5F7R50q0fV8GA/edit#gid=0';
 var gtable = SpreadsheetApp.openByUrl(TABLE_URL);
 /**
  * @brief Передаёт собирает веб-страницу и передаёт её клиенту в самом начале его захода на сайт
@@ -11,6 +12,8 @@ function doGet(e) {
     }else{
         template.emailFromGet = Session.getActiveUser().getEmail();
     }
+    template.editModeOn = e.parameter['edit'] == 1 ? true : false;
+
     return template.evaluate()
         .setTitle('Профиль '+ template.emailFromGet)
         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
@@ -47,14 +50,35 @@ function getData(sheetName, id, id_label) {
     var d = [];
     for (var i = 0; i < rowNums.length; i++) {
         var obj = {};
-        fieldsArr.forEach((key, col) => obj[key] = "" + sh.getRange(rowNums[i], col + 1).getValue());
+        fieldsArr.forEach((key, col) => obj[key] = "" + sh.getRange(rowNums[i]+1, col + 1).getValue());
         d.push(obj);
     }
-    return {
+    return { /// TODO
         "data": d,
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": 'plainText'
+        "sheetLayout": 'editorjs',
+        "format":"[{\
+                            type: 'header',\
+                            data: {\
+                                text: 'Это заголовок написанный полностью редактором',\
+                                level: 2\
+                            }\
+                        },\
+                        {\
+                            type: 'paragraph',\
+                            data: {\
+                                text: 'tab.last_name'\
+                            }\
+                        },\
+                             {\
+                            type: 'warning',\
+                            data: {\
+                                title: 'Предупреждаем!',\
+                             message: 'Сообщением об опасности'\
+                            }\
+                        }\
+                    ]"
     };
 }
 

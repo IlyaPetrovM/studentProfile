@@ -7,6 +7,7 @@
 <?!= HtmlService.createHtmlOutputFromFile('loader_css').getContent(); ?>
 <?!= HtmlService.createHtmlOutputFromFile('timeline_css').getContent(); ?>
 <script>
+var editModeOn = <?= editModeOn ?>;
 var emailFromGet = <?= emailFromGet ?>;
 </script>
 
@@ -33,11 +34,10 @@ var emailFromGet = <?= emailFromGet ?>;
 </div>
 
 <div class="container" id=main hidden>
+
 	<div class="row">
 		<h1 class=fio>Привет!</h1>
 	</div>
-
-
 	<ul class='nav nav-tabs row' id='menu' role='tablist'>
 <!--
 		<li class='nav-item'>
@@ -55,7 +55,7 @@ var emailFromGet = <?= emailFromGet ?>;
 
 
 	<div class="row tab-content" id="content" >
-<!--        <div id='Teams_table'></div>-->
+
 <!--
 		 <div role='tabpanel' class='tab-pane show' id="olymp" aria-labelledby='olymp_tab' hidden>
              
