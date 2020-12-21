@@ -43,25 +43,35 @@ function getFieldsRow(sh) {
  * @param [in] String id_label Заголовок столбца, в котором надо искать id
  * @return Массив из объектов - записей таблицы
  */
-
 function getData(sheetName, id, id_label) {
     var sh = gtable.getSheetByName(sheetName);
+    var meta = getMeta(sh);
+    var rows_of_data = get_rows_of_data(sh.getRange(1, meta.fields[id_label], sh.getLastRow()).getValues(), id);
+    var data = row_to_dataobject(rows_of_data, meta.fields, sh);
+    return packTable(data, sheetName, sh, meta);
+}
+function getDataTemplate(sheetName, id, id_label) {
+    var sh = gtable.getSheetByName(sheetName);
+    var meta = getMeta(sh);
+    return packTable(null, sheetName, sh, meta, Object.keys(meta.fields));
+}
+function getMeta(sh) {
     var rowNames = getRowNames(sh);
-
     var table_fields = get_object_from_row(sh.getRange(rowNames['table_fields'], 1, 1, sh.getLastColumn()).getValues()[0]);
     var fields = get_object_from_row(sh.getRange(rowNames.fields, 1, 1, sh.getLastColumn()).getValues()[0]);
+    return {rowNames, table_fields, fields};
+}
 
-    var rows_of_data = get_rows_of_data(sh.getRange(1, fields[id_label], sh.getLastRow()).getValues(), id);
-
-    var data = row_to_dataobject(rows_of_data, fields, sh);
+function packTable(data, sheetName, sh, meta, fields) {
     return {
         "data": data,
+        fields: fields,
         "sheetName": sheetName,
-        "tabName": sh.getRange(rowNames.table_values, table_fields.tabName).getValue(),
+        "tabName": sh.getRange(meta.rowNames.table_values, meta.table_fields.tabName).getValue(),
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": sh.getRange(rowNames.table_values, table_fields.sheetLayout).getValue(),
-        "format": sh.getRange(rowNames.table_values, table_fields.format).getValue()
-    }
+        "sheetLayout": sh.getRange(meta.rowNames.table_values, meta.table_fields.sheetLayout).getValue(),
+        "format": sh.getRange(meta.rowNames.table_values, meta.table_fields.format).getValue()
+    };
 }
 
 function row_to_dataobject(rows_of_data, fields, sh) {
@@ -111,44 +121,13 @@ function get_rows_of_data(column, id) {
     return nums;
 }
 
-/**
- * @brief Получает строки из конкретного листа, соответствующего id
- * @param [in] String sheetName Название листа
- * @param [in] String id Значение id, по которому ищутся записи в таблице
- * @param [in] String id_label Заголовок столбца, в котором надо искать id
- * @return Массив из объектов - записей таблицы
- */
-function getDataTemplate(sheetName, id, id_label) {
-    var sh = gtable.getSheetByName(sheetName);
-    var rowNames = getRowNames(sh);
-    var fieldsArr = sh.getRange(rowNames.fields, 1, 1, sh.getLastColumn()).getValues()[0];
-    var fields = get_object_from_row(fieldsArr);
-    fieldsArr = Object.keys(fields);
 
-
-    var format = '';
-    var sheetLayout = getSheetLayout(sh);
-    if (sheetLayout == 'template') {
-        format = getTemplRange(sh).getValue();
-    }
-    return { /// TODO
-        fields: fieldsArr,
-        "sheetName": sheetName,
-        "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": sheetLayout,
-        "format": format
-    };
-}
 
 function saveTemplate(sheetName, html) {
     var sh = gtable.getSheetByName(sheetName);
-    var templRange = getTemplRange(sh);
-    templRange.setValue(html);
+    var meta = getMeta(sh);
+    sh.getRange(meta.rowNames.table_values, meta.table_fields.format).setValue(html);
     return true;
-}
-
-function getTemplRange(sh) {
-    return sh.getRange(1, 1);
 }
 
 function getRowNames(sh) {
