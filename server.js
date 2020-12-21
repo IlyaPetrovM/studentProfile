@@ -7,15 +7,15 @@ var gtable = SpreadsheetApp.openByUrl(TABLE_URL);
  */
 function doGet(e) {
     var template = HtmlService.createTemplateFromFile('Index');
-    if(e.parameter['email'] !== undefined){
+    if (e.parameter['email'] !== undefined) {
         template.emailFromGet = e.parameter['email'];
-    }else{
+    } else {
         template.emailFromGet = Session.getActiveUser().getEmail();
     }
     template.editModeOn = e.parameter['edit'] == 1 ? true : false;
 
     return template.evaluate()
-        .setTitle('Профиль '+ template.emailFromGet)
+        .setTitle('Профиль ' + template.emailFromGet)
         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -23,13 +23,17 @@ function doGet(e) {
  * @brief Получает список названий листов таблицы и отправляет их клиенту
  * @return массив названий листов таблицы (строки)
  */
-function getSheets(){
+function getSheets() {
     var shs = gtable.getSheets();
     var names = [];
-    for(var i=0; i<shs.length; i++ ){
+    for (var i = 0; i < shs.length; i++) {
         names.push(shs[i].getSheetName());
     }
     return names;
+}
+
+function getFieldsRow(sh) {
+    return 2;
 }
 
 /**
@@ -39,47 +43,53 @@ function getSheets(){
  * @param [in] String id_label Заголовок столбца, в котором надо искать id
  * @return Массив из объектов - записей таблицы
  */
+
 function getData(sheetName, id, id_label) {
     var sh = gtable.getSheetByName(sheetName);
-    var fieldsRow = 2;
-    var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
-    var fields = getFieldsNums(fieldsArr);
-    fieldsArr = Object.keys(fields);
-    var colWithIds = sh.getRange(1, 1, sh.getLastRow()).getValues(); // getRange(row, column, numRows, numColumns)
-    var rowNums = getRowNums(colWithIds, id);
-    var d = [];
-    for (var i = 0; i < rowNums.length; i++) {
-        var obj = {};
-        fieldsArr.forEach((key, col) => obj[key] = "" + sh.getRange(rowNums[i]+1, col + 1).getValue());
-        d.push(obj);
-    }
-    var format = '';
-    var sheetLayout = getSheetLayout(sh);
-    if(sheetLayout == 'template'){
-        format = getTemplRange(sh).getValue();
-    }
-    return { /// TODO
-        "data": d,
+    var rowNames = getRowNames(sh);
+
+    var table_fields = get_object_from_row(sh.getRange(rowNames['table_fields'], 1, 1, sh.getLastColumn()).getValues()[0]);
+    var fields = get_object_from_row(sh.getRange(rowNames.fields, 1, 1, sh.getLastColumn()).getValues()[0]);
+
+    var rows_of_data = get_rows_of_data(sh.getRange(1, fields[id_label], sh.getLastRow()).getValues(), id);
+
+    var data = row_to_dataobject(rows_of_data, fields, sh);
+    return {
+        "data": data,
         "sheetName": sheetName,
+        "tabName": sh.getRange(rowNames.table_values, table_fields.tabName).getValue(),
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": sheetLayout,
-        "format": format
-    };
+        "sheetLayout": sh.getRange(rowNames.table_values, table_fields.sheetLayout).getValue(),
+        "format": sh.getRange(rowNames.table_values, table_fields.format).getValue()
+    }
 }
-function getSheetLayout(sh){
-    return sh.getRange(1,2).getValue();
+
+function row_to_dataobject(rows_of_data, fields, sh) {
+    var output_objects = [];
+
+    var keys = Object.keys(fields);
+    for (var i = 0; i < rows_of_data.length; i++) {
+        var obj = {};
+        keys.forEach((key, col) => obj[key] = "" + sh.getRange(rows_of_data[i], col+1).getValue());
+        output_objects.push(obj);
+    }
+    return output_objects;
+}
+
+function getSheetLayout(sh) {
+    return sh.getRange(1, 2).getValue();
 }
 
 /**
  * @brief Превращает значения массива в ключевые значения объекта
  * @param [in] Array[] head массив значений
- * @return объект с номерами названий столбцов от _0_ до n (например, {age: 0, name: 1})
+ * @return объект с номерами названий столбцов от _1_ до n (например, {age: 0, name: 1})
  */
-function getFieldsNums(head) {
+function get_object_from_row(head) {
     var fields = {};
     for (var cell = 0; cell < head.length; cell++) {
         if (head[cell] != '')
-            fields[head[cell]] = cell; // Записываем, какие заголовки у нас есть в таблице и какие номера им присвоены
+            fields[head[cell]] = cell+1; // Записываем, какие заголовки у нас есть в таблице и какие номера им присвоены
     }
     return fields;
 }
@@ -90,11 +100,12 @@ function getFieldsNums(head) {
  * @param [in] String id идентефикатор, который ищется в строке
  * @return Массив с номерами строк (int)
  */
-function getRowNums(column, id) {
+function get_rows_of_data(column, id) {
     var nums = [];
+    Logger.log('column',column, id);
     for (var row in column) {
         if (column[row][0] == id) {
-            nums.push(parseInt(row));
+            nums.push(parseInt(row)+1);
         }
     }
     return nums;
@@ -109,15 +120,15 @@ function getRowNums(column, id) {
  */
 function getDataTemplate(sheetName, id, id_label) {
     var sh = gtable.getSheetByName(sheetName);
-    var fieldsRow = 2;
-    var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
-    var fields = getFieldsNums(fieldsArr);
+    var rowNames = getRowNames(sh);
+    var fieldsArr = sh.getRange(rowNames.fields, 1, 1, sh.getLastColumn()).getValues()[0];
+    var fields = get_object_from_row(fieldsArr);
     fieldsArr = Object.keys(fields);
 
 
     var format = '';
     var sheetLayout = getSheetLayout(sh);
-    if(sheetLayout == 'template'){
+    if (sheetLayout == 'template') {
         format = getTemplRange(sh).getValue();
     }
     return { /// TODO
@@ -125,18 +136,28 @@ function getDataTemplate(sheetName, id, id_label) {
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
         "sheetLayout": sheetLayout,
-        "format":format
+        "format": format
     };
 }
 
-function saveTemplate(sheetName, html){
+function saveTemplate(sheetName, html) {
     var sh = gtable.getSheetByName(sheetName);
     var templRange = getTemplRange(sh);
     templRange.setValue(html);
     return true;
 }
 
-function getTemplRange(sh){
-    return sh.getRange(1,1);
+function getTemplRange(sh) {
+    return sh.getRange(1, 1);
 }
 
+function getRowNames(sh) {
+    var range = sh.getRange(1, 1, sh.getLastRow()).getValues();
+    var names = {};
+    for (var row in range) {
+        if (range[row][0] != '') {
+            names[ ''+range[row][0] ] = parseInt(row)+1;
+        }
+    }
+    return names;
+}

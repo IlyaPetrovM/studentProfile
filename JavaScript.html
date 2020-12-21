@@ -64,7 +64,7 @@
     var editor = '';
 
     function createTab(msg) {
-        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
+        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.tabName + "</a></li>";
         var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab' ></div>";
 
         $('#menu').append(navItem);
@@ -81,6 +81,7 @@
 
         if (editModeOn == 'true') {
             for (var i in sheets) {
+                if(sheets[i][0]=='_') continue;
                 google.script.run
                     .withFailureHandler(onGetDataFailed)
                     .withSuccessHandler(function(msg) {
@@ -100,6 +101,7 @@
             }
         } else {
             for (var i in sheets) {
+                if(sheets[i][0]=='_') continue;
                 var data = google.script.run
                     .withFailureHandler(onGetDataFailed)
                     .withSuccessHandler(onGetDataRecieved)
@@ -182,9 +184,6 @@
             }
             $('#' + id).html(html);
         },
-        /**
-            TODO
-         */
         template: function(id, data, format,sheetName) {
 
             if (editModeOn == 'true') { // TODO wysiwig
