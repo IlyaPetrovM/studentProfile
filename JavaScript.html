@@ -1,22 +1,21 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script><!-- Header -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@latest"></script><!-- Image -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script><!-- Delimiter -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script><!-- List -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script><!-- Checklist -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script><!-- Quote -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script><!-- Code -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script><!-- Embed -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script><!-- Table -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest"></script><!-- Link -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@latest"></script><!-- Warning -->
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.1/dist/js/tabulator.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script><!-- Marker -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script><!-- Inline Code -->
+<!-- include codemirror (codemirror.css, codemirror.js, xml.js, formatting.js) -->
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.20.0/codemirror.css">
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.20.0/theme/monokai.css">
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.20.0/codemirror.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.20.0/mode/xml/xml.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/codemirror/2.36.0/formatting.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-
+<!-- include summernote css/js -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ru-RU.min.js"></script>
 
 <script>
     /**
@@ -64,17 +63,50 @@
      */
     var editor = '';
 
+    function createTab(msg) {
+        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
+        var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab' ></div>";
+
+        $('#menu').append(navItem);
+        $('#content').append(tabPanel);
+        if (isFirstTab)
+            $('#' + msg.sheetId + '_tab').click();
+        isFirstTab = false;
+    }
+
     function onSheetsRecieved(sheets) {
 
         $('#loader').attr('hidden', true);
         $('#main').attr('hidden', false);
 
-        for (var i in sheets) {
-            var data = google.script.run
-                .withFailureHandler(onGetDataFailed)
-                .withSuccessHandler(onGetDataRecieved)
-                .getData(sheets[i], emailFromGet, 'email');
+        if (editModeOn == 'true') {
+            for (var i in sheets) {
+                google.script.run
+                    .withFailureHandler(onGetDataFailed)
+                    .withSuccessHandler(function(msg) {
+                        console.log(msg);
+
+                        if (msg.fields.length < 1) return;
+
+                        createTab(msg);
+                        try {
+                            drawer[msg.sheetLayout](msg.sheetId, msg.fields, msg.format);
+                        } catch (e) {
+                            console.log(e);
+                            drawer['table'](msg.sheetId, msg.fields);
+                        }
+                    })
+                    .getDataTemplate(sheets[i]);
+            }
+        } else {
+            for (var i in sheets) {
+                var data = google.script.run
+                    .withFailureHandler(onGetDataFailed)
+                    .withSuccessHandler(onGetDataRecieved)
+                    .getData(sheets[i], emailFromGet, 'email');
+            }
         }
+
     }
 
     /**
@@ -99,14 +131,7 @@
 
         if (msg.data.length < 1) return;
 
-        var navItem = "<li class='nav-item'><a data-toggle='tab' role='tab' class='nav-link' href='#" + msg.sheetId + "'  id='" + msg.sheetId + "_tab'  aria-controls='" + msg.sheetId + "' aria-selected=" + isFirstTab + ">" + msg.sheetName + "</a></li>";
-        var tabPanel = "<div role='tabpanel' class='tab-pane" + (isFirstTab ? " show" : "") + "' id='" + msg.sheetId + "' aria-labelledby='" + msg.sheetId + "_tab' ></div>";
-
-        $('#menu').append(navItem);
-        $('#content').append(tabPanel);
-        if (isFirstTab)
-            $('#' + msg.sheetId + '_tab').click();
-        isFirstTab = false;
+        createTab(msg);
 
         try {
             drawer[msg.sheetLayout](msg.sheetId, msg.data, msg.format);
@@ -159,101 +184,70 @@
             TODO
          */
         template: function(id, data, format) {
-            var html = '';
-            for (var i in data) {
-                var tab = data[i];
-                var templ = eval('`' + format + '`');
-                html += templ;
+
+            if (editModeOn == 'true') { // TODO wysiwig
+
+                $('#' + id).append(document.createElement('div'));
+                $('#'+id+' div').eq(0).html(format);
+                $('#'+id+' div').eq(0).summernote({
+                    focus: true, // set focus to editable area after initializing summernote
+                    lang: 'ru-RU',
+                    codemirror: { // codemirror options
+                        theme: 'monokai'
+                    },
+                    callbacks: {
+                        onChange: function(contents, $editable) {
+                            console.log('onChange ' + id, contents, $editable);
+                        },
+                        onChangeCodeview: function(contents, $editable) {
+                            console.log('onChangeCode ' + id, contents, $editable);
+                        }
+                    }
+                });
+                console.log('#'+id+' div',format);
+
+                var saveButton = document.createElement('div');
+                saveButton.innerHTML = 'Сохранить';
+                saveButton.setAttribute('type','button');
+                saveButton.onclick = function(e){
+                    var html = $('#'+id+' div').eq(0).summernote('code');
+                    $('#'+id+' div').eq(0).summernote('destroy');
+                    console.log(html);
+                };
+                var editButton = document.createElement('div');
+                editButton.onclick = function(e){
+                    $('#'+id+' div').eq(0).summernote({focus: true});
+                };
+                editButton.innerHTML = 'Редактировать';
+                editButton.setAttribute('type','button');
+                saveButton.className = 'btn btn-success';
+                editButton.className = 'btn btn-warning';
+                $('#' + id).append(editButton);
+                $('#' + id).append(saveButton);
+                var b_grp = document.createElement('div');
+                $('#' + id).append(b_grp);
+                for(var i in data){
+                    var b = document.createElement('div');
+                    b.innerHTML = '#'+data[i];
+                    b.setAttribute('type','button');
+                    b.className = 'btn btn-outline-secondary';
+                    b.onclick = function(i){
+                        console.log('#'+this[i]);
+                        $('#'+id+' div').eq(0).summernote('pasteHTML', '<code class="badge badge-secondary" contenteditable=false id="'+id+'_'+this[i]+'"> #'+this[i]+'</code> &zwnj;');
+//                        var rng = $('#'+id+' div').eq(0).summernote('editor.getLastRange');
+//                        console.log('range',rng);
+//                        const range = $.summernote.range;  // range utility
+//                        // set my custom range
+//                        $('#summernote').summernote('editor.setLastRange', range.createFromNodeAfter(node).select());
+                       // rng.setStartAfter($('#'+id+'_'+this[i]));
+
+                    }.bind(data,i);
+                    b_grp.append(b);
+                }
+
+            }else{
+                $('#' + id).html(format);
             }
-            $('#' + id).html(html);
-        },
-        editorjs: function(id, indata, format) { /// TODO
-            var tab = indata[0];
-            var html_data = eval(format);
-//            for (var i in indata) {
-//                var templ = eval('`' + format + '`');
-//                html += templ;
-//            }
-
-
-
-            editor = new EditorJS({
-                readOnly: editModeOn=='false',
-                holder: id,
-                placeholder: 'Можно вводить текст здесь...!',
-                tools: {
-                    header: {
-                        class: Header,
-                        inlineToolbar: ['marker', 'link'],
-                        config: {
-                            placeholder: 'Header'
-                        },
-                        shortcut: 'CMD+SHIFT+H'
-                    },
-
-                    image: SimpleImage,
-
-                    list: {
-                        class: List,
-                        inlineToolbar: true,
-                        shortcut: 'CMD+SHIFT+L'
-                    },
-
-                    checklist: {
-                        class: Checklist,
-                        inlineToolbar: true,
-                    },
-
-                    quote: {
-                        class: Quote,
-                        inlineToolbar: true,
-                        config: {
-                            quotePlaceholder: 'Enter a quote',
-                            captionPlaceholder: 'Quote\'s author',
-                        },
-                        shortcut: 'CMD+SHIFT+O'
-                    },
-
-                    warning: Warning,
-
-                    marker: {
-                        class: Marker,
-                        shortcut: 'CMD+SHIFT+M'
-                    },
-
-                    code: {
-                        class: CodeTool,
-                        shortcut: 'CMD+SHIFT+C'
-                    },
-
-                    delimiter: Delimiter,
-
-                    inlineCode: {
-                        class: InlineCode,
-                        shortcut: 'CMD+SHIFT+C'
-                    },
-
-                    linkTool: LinkTool,
-
-                    embed: Embed,
-
-                    table: {
-                        class: Table,
-                        inlineToolbar: true,
-                        shortcut: 'CMD+ALT+T'
-                    },
-
-                },
-                onChange: function(e) {
-                    editor.save().then((outputData) => {
-                        console.log('Article data: ', outputData)
-                    }).catch((error) => {
-                        console.log('Saving failed: ', error)
-                    });
-                },
-                data: {blocks:html_data}
-            });
-            console.log(editor);
         }
     };
 
@@ -295,9 +289,3 @@
     }
 
 </script>
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-
-<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.1/dist/js/tabulator.min.js"></script>

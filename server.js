@@ -41,7 +41,7 @@ function getSheets(){
  */
 function getData(sheetName, id, id_label) {
     var sh = gtable.getSheetByName(sheetName);
-    var fieldsRow = 1;
+    var fieldsRow = 2;
     var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
     var fields = getFieldsNums(fieldsArr);
     fieldsArr = Object.keys(fields);
@@ -57,28 +57,8 @@ function getData(sheetName, id, id_label) {
         "data": d,
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": 'editorjs',
-        "format":"[{\
-                            type: 'header',\
-                            data: {\
-                                text: 'Это заголовок написанный полностью редактором',\
-                                level: 2\
-                            }\
-                        },\
-                        {\
-                            type: 'paragraph',\
-                            data: {\
-                                text: 'tab.last_name'\
-                            }\
-                        },\
-                             {\
-                            type: 'warning',\
-                            data: {\
-                                title: 'Предупреждаем!',\
-                             message: 'Сообщением об опасности'\
-                            }\
-                        }\
-                    ]"
+        "sheetLayout": 'template',
+        "format":'<b> ${tab.last_name} </b>'
     };
 }
 
@@ -111,3 +91,39 @@ function getRowNums(column, id) {
     }
     return nums;
 }
+
+/**
+ * @brief Получает строки из конкретного листа, соответствующего id
+ * @param [in] String sheetName Название листа
+ * @param [in] String id Значение id, по которому ищутся записи в таблице
+ * @param [in] String id_label Заголовок столбца, в котором надо искать id
+ * @return Массив из объектов - записей таблицы
+ */
+function getDataTemplate(sheetName, id, id_label) {
+    var sh = gtable.getSheetByName(sheetName);
+    var fieldsRow = 2;
+    var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
+    var fields = getFieldsNums(fieldsArr);
+    fieldsArr = Object.keys(fields);
+    var html = getTemplRange(sh).getValue();
+
+    return { /// TODO
+        fields: fieldsArr,
+        "sheetName": sheetName,
+        "sheetId": new String(sheetName).replace(/ /gi, '_'),
+        "sheetLayout": 'template',
+        "format":html
+    };
+}
+
+function editTemplate(sheetName, html){
+    var sh = gtable.getSheetByName(sheetName);
+    var templRange = getTemplRange(sh);
+    templRange.setValue(html);
+    return true;
+}
+
+function getTemplRange(sh){
+    return sh.getRange(1,1);
+}
+
