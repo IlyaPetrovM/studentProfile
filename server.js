@@ -53,13 +53,21 @@ function getData(sheetName, id, id_label) {
         fieldsArr.forEach((key, col) => obj[key] = "" + sh.getRange(rowNums[i]+1, col + 1).getValue());
         d.push(obj);
     }
+    var format = '';
+    var sheetLayout = getSheetLayout(sh);
+    if(sheetLayout == 'template'){
+        format = getTemplRange(sh).getValue();
+    }
     return { /// TODO
         "data": d,
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": 'template',
-        "format":'<b> ${tab.last_name} </b>'
+        "sheetLayout": sheetLayout,
+        "format": format
     };
+}
+function getSheetLayout(sh){
+    return sh.getRange(1,2).getValue();
 }
 
 /**
@@ -105,18 +113,23 @@ function getDataTemplate(sheetName, id, id_label) {
     var fieldsArr = sh.getRange(fieldsRow, 1, 1, sh.getLastColumn()).getValues()[0];
     var fields = getFieldsNums(fieldsArr);
     fieldsArr = Object.keys(fields);
-    var html = getTemplRange(sh).getValue();
 
+
+    var format = '';
+    var sheetLayout = getSheetLayout(sh);
+    if(sheetLayout == 'template'){
+        format = getTemplRange(sh).getValue();
+    }
     return { /// TODO
         fields: fieldsArr,
         "sheetName": sheetName,
         "sheetId": new String(sheetName).replace(/ /gi, '_'),
-        "sheetLayout": 'template',
-        "format":html
+        "sheetLayout": sheetLayout,
+        "format":format
     };
 }
 
-function editTemplate(sheetName, html){
+function saveTemplate(sheetName, html){
     var sh = gtable.getSheetByName(sheetName);
     var templRange = getTemplRange(sh);
     templRange.setValue(html);

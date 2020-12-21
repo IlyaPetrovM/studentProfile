@@ -90,7 +90,7 @@
 
                         createTab(msg);
                         try {
-                            drawer[msg.sheetLayout](msg.sheetId, msg.fields, msg.format);
+                            drawer[msg.sheetLayout](msg.sheetId, msg.fields, msg.format, msg.sheetName);
                         } catch (e) {
                             console.log(e);
                             drawer['table'](msg.sheetId, msg.fields);
@@ -151,9 +151,11 @@
          * @param [in] String id Идентефикатор элемента, внутрь которого надо добавить табличку
          * @param [in] String data Содержимое таблички
          */
-        table: function(id, data) {
-            var tableId = id + '_table';
-            var table = new Tabulator("#" + tableId, {
+        table: function(id, data, format) {
+            var t = document.createElement('div');
+            t.id = id+'_table'
+            $('#' + id).append(t);
+            var table = new Tabulator("#" + t.id, {
                 //        height: 300,
                 data: data,
                 autoColumns: true,
@@ -183,7 +185,7 @@
         /**
             TODO
          */
-        template: function(id, data, format) {
+        template: function(id, data, format,sheetName) {
 
             if (editModeOn == 'true') { // TODO wysiwig
 
@@ -210,9 +212,15 @@
                 saveButton.innerHTML = 'Сохранить';
                 saveButton.setAttribute('type','button');
                 saveButton.onclick = function(e){
+                    saveButton.innerHTML = 'Отправка...';
                     var html = $('#'+id+' div').eq(0).summernote('code');
                     $('#'+id+' div').eq(0).summernote('destroy');
                     console.log(html);
+                    google.script.run
+                        .withFailureHandler(function(){alert("Произошла ошибка при сохранении")})
+                        .withSuccessHandler(function(){saveButton.innerHTML = 'Готово!';
+                                                      setTimeout(function(){saveButton.innerHTML = 'Сохранить'},1000)})
+                        .saveTemplate(sheetName, html);
                 };
                 var editButton = document.createElement('div');
                 editButton.onclick = function(e){
@@ -233,13 +241,7 @@
                     b.className = 'btn btn-outline-secondary';
                     b.onclick = function(i){
                         console.log('#'+this[i]);
-                        $('#'+id+' div').eq(0).summernote('pasteHTML', '<code class="badge badge-secondary" contenteditable=false id="'+id+'_'+this[i]+'"> #'+this[i]+'</code> &zwnj;');
-//                        var rng = $('#'+id+' div').eq(0).summernote('editor.getLastRange');
-//                        console.log('range',rng);
-//                        const range = $.summernote.range;  // range utility
-//                        // set my custom range
-//                        $('#summernote').summernote('editor.setLastRange', range.createFromNodeAfter(node).select());
-                       // rng.setStartAfter($('#'+id+'_'+this[i]));
+                        $('#'+id+' div').eq(0).summernote('pasteHTML', '<span class="badge badge-secondary" contenteditable=false id="'+id+'_'+this[i]+'"> #'+this[i]+'</span> &zwnj;');
 
                     }.bind(data,i);
                     b_grp.append(b);
@@ -247,6 +249,11 @@
 
             }else{
                 $('#' + id).html(format);
+                $('#' + id+ ' span').attr('class', '');
+                for(var colName in data[0]){
+                    var elId = '#'+id+'_'+colName;
+                    $(elId).html(data[0][colName]);
+                }
             }
         }
     };
